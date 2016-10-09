@@ -1160,6 +1160,7 @@ namespace WebSocketSharp
       }
 
       _message (e);
+            //UnityEngine.Debug.Log("MESSAGING NEAR ROOT");
     }
 
     private void messagec (MessageEventArgs e)
@@ -1167,6 +1168,7 @@ namespace WebSocketSharp
       do {
         try {
           OnMessage.Emit (this, e);
+                    //UnityEngine.Debug.Log("Emitting! 1");
         }
         catch (Exception ex) {
           _logger.Error (ex.ToString ());
@@ -1189,7 +1191,8 @@ namespace WebSocketSharp
     {
       try {
         OnMessage.Emit (this, e);
-      }
+                //UnityEngine.Debug.Log("Emitting! 2");
+            }
       catch (Exception ex) {
         _logger.Error (ex.ToString ());
         error ("An exception has occurred during an OnMessage event.", ex);

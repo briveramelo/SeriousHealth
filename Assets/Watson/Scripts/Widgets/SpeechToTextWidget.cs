@@ -167,6 +167,7 @@ namespace IBM.Watson.DeveloperCloud.Widgets
 
         private void OnGetModels( Model [] models )
         {
+
             if ( models != null )
             {
                 Model bestModel = null;
@@ -189,6 +190,7 @@ namespace IBM.Watson.DeveloperCloud.Widgets
 
 	    private void OnRecognize(SpeechRecognitionEvent result)
 	    {
+            UnityEngine.Debug.Log("Recognizing!");
             m_ResultOutput.SendData( new SpeechToTextData( result ) );
 
             if (result != null && result.results.Length > 0)

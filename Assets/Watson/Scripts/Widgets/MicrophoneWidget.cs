@@ -54,6 +54,8 @@ namespace IBM.Watson.DeveloperCloud.Widgets
         private DateTime m_LastFailure = DateTime.Now;
 
         [SerializeField]
+        private AudioSource source;
+        [SerializeField]
         private bool m_ActivateOnStart = true;
         [SerializeField, Tooltip("Size of recording buffer in seconds.")]
         private int m_RecordingBufferSize = 2;
@@ -238,13 +240,13 @@ namespace IBM.Watson.DeveloperCloud.Widgets
                     AudioClip combined = AudioClipUtil.Combine(m_Playback.ToArray());
                     if (combined != null)
                     {
-                        AudioSource source = GetComponentInChildren<AudioSource>();
                         if (source != null)
                         {
                             // destroy any previous audio clip..
                             if (source.clip != null)
                                 UnityObjectUtil.DestroyUnityObject(source.clip);
 
+                            source.enabled = true;
                             source.spatialBlend = 0.0f;     // 2D sound
                             source.loop = false;            // do not loop
                             source.clip = combined;         // clip

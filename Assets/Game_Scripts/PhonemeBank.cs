@@ -24,6 +24,7 @@ public class PhonemeBank : MonoBehaviour {
 
 
     void Awake() {
+        
         if (Instance == null) {
             Instance = this;
             DontDestroyOnLoad(gameObject);

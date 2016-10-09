@@ -29,6 +29,7 @@ using UnityEngine;
 using System.Text;
 using FullSerializer;
 using System.IO;
+using System.Linq;
 
 namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
 {
@@ -311,7 +312,7 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
 						throw new WatsonException(r.FormattedMessages);
 
 					object obj = response;
-					r = sm_Serializer.TryDeserialize(data, obj.GetType(), ref obj);
+					r = sm_Serializer.TryDeserialize(data, obj.GetType(), ref obj);                    
 					if (!r.Succeeded)
 						throw new WatsonException(r.FormattedMessages);
 				}
@@ -344,7 +345,7 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
         /// <param name="callback">All recognize results are passed to this callback.</param>
         /// <returns>Returns true on success, false on failure.</returns>
         public bool StartListening(OnRecognize callback)
-        {
+        {            
             if (callback == null)
                 throw new ArgumentNullException("callback");
             if (m_IsListening)
@@ -353,6 +354,7 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
                 return false;
 
             m_IsListening = true;
+
             m_ListenCallback = callback;
             m_KeepAliveRoutine = Runnable.Run(KeepAlive());
             m_LastKeepAlive = DateTime.Now;
@@ -468,8 +470,7 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
             }
         }
 
-        private void SendStart()
-        {
+        private void SendStart() {
             if (m_ListenSocket == null)
                 throw new WatsonException("SendStart() called with null connector.");
 
@@ -481,6 +482,9 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
             start["interim_results"] = EnableInterimResults;
             start["word_confidence"] = m_WordConfidence;
             start["timestamps"] = m_Timestamps;
+
+            start["keywords"] = keywordsToCheck.ToArray();
+            start["keywords_threshold"] = 0.05;
 
             m_ListenSocket.Send(new WSConnector.TextMessage(Json.Serialize(start)));
             m_LastStartSent = DateTime.Now;
@@ -524,24 +528,40 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
             Log.Debug("SpeechToText", "KeepAlive exited.");
         }
 
+        /// <summary>
+        /// Gets called every time a new listening message comes in
+        /// </summary>
+        /// <param name="msg"></param>
         private void OnListenMessage(WSConnector.Message msg)
         {
+            //UnityEngine.Debug.Log("LISTENING 1");
             if (msg is WSConnector.TextMessage)
             {
                 WSConnector.TextMessage tm = (WSConnector.TextMessage)msg;
-
+                //UnityEngine.Debug.Log("LISTENING 2");
                 IDictionary json = Json.Deserialize(tm.Text) as IDictionary;
                 if (json != null)
                 {
+                    //UnityEngine.Debug.Log("LISTENING 3");
                     if (json.Contains("results"))
                     {
+                        //UnityEngine.Debug.Log("LISTENING 4");
                         SpeechRecognitionEvent results = ParseRecognizeResponse(json);
+                        
                         if (results != null)
                         {
+
+                            //RETURN HERE
+                            //results.results[0].keywords_result.keyword[0].
                             // when we get results, start listening for the next block ..
                             // if continuous is true, then we don't need to do this..
-                            if (!EnableContinousRecognition && results.HasFinalResult())
+                            //.Debug.Log("LISTENING 5");
+                            //UnityEngine.Debug.Log("results: " + results.results[0].keywords_result.keyword[0].confidence);
+                            //UnityEngine.Debug.Log("contrec: " + !EnableContinousRecognition);
+                            //UnityEngine.Debug.Log("finalre: " + results.HasFinalResult());
+                            if (!EnableContinousRecognition && results.HasFinalResult()) {
                                 SendStart();
+                            }
 
                             if (m_ListenCallback != null)
                                 m_ListenCallback(results);
@@ -652,8 +672,8 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
             req.Parameters["max_alternatives"] = m_MaxAlternatives.ToString();
             req.Parameters["timestamps"] = m_Timestamps ? "true" : "false";
             req.Parameters["word_confidence"] = m_WordConfidence ? "true" : "false";
+            
             req.OnResponse = OnRecognizeResponse;
-
             return connector.Send(req);
         }
 
@@ -706,109 +726,138 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
             return ParseRecognizeResponse(resp);
         }
 
-        private SpeechRecognitionEvent ParseRecognizeResponse(IDictionary resp)
-        {
+        List<string> keywordsToCheck = new List<string>() {
+            "this",
+            "that",
+            "his",
+            "her",
+            "they",
+        };
+        public void UpdateKeywords(List<string> newKeywords) {
+            keywordsToCheck = newKeywords;
+        }
+        private SpeechRecognitionEvent ParseRecognizeResponse(IDictionary resp){
+
             if (resp == null)
                 return null;
 
-            try
-            {
-                List<SpeechRecognitionResult> results = new List<SpeechRecognitionResult>();
-                IList iresults = resp["results"] as IList;
-                if (iresults == null)
-                    return null;
-
-                foreach (var r in iresults)
-                {
-                    IDictionary iresult = r as IDictionary;
-                    if (iresults == null)
-                        continue;
-
-                    SpeechRecognitionResult result = new SpeechRecognitionResult();
-                    result.final = (bool)iresult["final"];
-
-                    IList ialternatives = iresult["alternatives"] as IList;
-                    if (ialternatives == null)
-                        continue;
-
-                    List<SpeechRecognitionAlternative> alternatives = new List<SpeechRecognitionAlternative>();
-                    foreach (var a in ialternatives)
-                    {
-                        IDictionary ialternative = a as IDictionary;
-                        if (ialternative == null)
-                            continue;
-
-                        SpeechRecognitionAlternative alternative = new SpeechRecognitionAlternative();
-                        alternative.transcript = (string)ialternative["transcript"];
-                        if (ialternative.Contains("confidence"))
-                            alternative.confidence = (double)ialternative["confidence"];
-
-                        if (ialternative.Contains("timestamps"))
-                        {
-                            IList itimestamps = ialternative["timestamps"] as IList;
-
-                            TimeStamp[] timestamps = new TimeStamp[itimestamps.Count];
-                            for (int i = 0; i < itimestamps.Count; ++i)
-                            {
-                                IList itimestamp = itimestamps[i] as IList;
-                                if (itimestamp == null)
-                                    continue;
-
-                                TimeStamp ts = new TimeStamp();
-                                ts.Word = (string)itimestamp[0];
-                                ts.Start = (double)itimestamp[1];
-                                ts.End = (double)itimestamp[2];
-                                timestamps[i] = ts;
-                            }
-
-                            alternative.Timestamps = timestamps;
-                        }
-                        if (ialternative.Contains("word_confidence"))
-                        {
-                            IList iconfidence = ialternative["word_confidence"] as IList;
-
-                            WordConfidence[] confidence = new WordConfidence[iconfidence.Count];
-                            for (int i = 0; i < iconfidence.Count; ++i)
-                            {
-                                IList iwordconf = iconfidence[i] as IList;
-                                if (iwordconf == null)
-                                    continue;
-
-                                WordConfidence wc = new WordConfidence();
-                                wc.Word = (string)iwordconf[0];
-                                wc.Confidence = (double)iwordconf[1];
-                                confidence[i] = wc;
-                            }
-
-                            alternative.WordConfidence = confidence;
-                        }
-
-                        alternatives.Add(alternative);
-                    }
-                    result.alternatives = alternatives.ToArray();
-                    results.Add(result);
-                }
-
-                return new SpeechRecognitionEvent(results.ToArray());
-            }
-            catch (Exception e)
-            {
-                Log.Error("SpeechToText", "ParseJsonResponse exception: {0}", e.ToString());
+            
+            List<SpeechRecognitionResult> results = new List<SpeechRecognitionResult>();
+            IList iresults = resp["results"] as IList;
+            if (iresults == null)
                 return null;
+
+            foreach (var r in iresults)
+            {
+                IDictionary iresult = r as IDictionary;
+                if (iresults == null)
+                    continue;
+
+                SpeechRecognitionResult result = new SpeechRecognitionResult();
+
+                IDictionary iKeywords_result = iresult["keywords_result"] as IDictionary;
+                result.keywords_result = new KeywordResults();
+                List<KeywordResult> keywordResults = new List<KeywordResult>();
+                foreach (string key in keywordsToCheck) {
+                    if (iKeywords_result[key] != null) {
+                        IList keyword_Results = iKeywords_result[key] as IList;
+                        if (keyword_Results == null) {
+                            continue;
+                        }
+                        foreach (var res in keyword_Results) {
+                            IDictionary elm = res as IDictionary;
+                            KeywordResult keyword_Result = new KeywordResult();
+                            keyword_Result.confidence = (double)elm["confidence"];
+                            keyword_Result.end_time = (double)elm["end_time"];
+                            keyword_Result.start_time = (double)elm["start_time"];
+                            keyword_Result.normalized_text = (string)elm["normalized_text"];
+                            keywordResults.Add(keyword_Result);
+                            //UnityEngine.Debug.Log("Added new result");
+                        }
+                    }
+                }
+                result.keywords_result.keyword = keywordResults.ToArray();                   
+
+
+                result.final = (bool)iresult["final"];
+
+                IList ialternatives = iresult["alternatives"] as IList;
+                if (ialternatives == null)
+                    continue;
+
+                List<SpeechRecognitionAlternative> alternatives = new List<SpeechRecognitionAlternative>();
+                foreach (var a in ialternatives)
+                {
+                    IDictionary ialternative = a as IDictionary;
+                    if (ialternative == null)
+                        continue;
+
+                    SpeechRecognitionAlternative alternative = new SpeechRecognitionAlternative();
+                    alternative.transcript = (string)ialternative["transcript"];
+                    if (ialternative.Contains("confidence"))
+                        alternative.confidence = (double)ialternative["confidence"];
+
+                    if (ialternative.Contains("timestamps"))
+                    {
+                        IList itimestamps = ialternative["timestamps"] as IList;
+
+                        TimeStamp[] timestamps = new TimeStamp[itimestamps.Count];
+                        for (int i = 0; i < itimestamps.Count; ++i)
+                        {
+                            IList itimestamp = itimestamps[i] as IList;
+                            if (itimestamp == null)
+                                continue;
+
+                            TimeStamp ts = new TimeStamp();
+                            ts.Word = (string)itimestamp[0];
+                            ts.Start = (double)itimestamp[1];
+                            ts.End = (double)itimestamp[2];
+                            timestamps[i] = ts;
+                        }
+
+                        alternative.Timestamps = timestamps;
+                    }
+                    if (ialternative.Contains("word_confidence"))
+                    {
+                        IList iconfidence = ialternative["word_confidence"] as IList;
+
+                        WordConfidence[] confidence = new WordConfidence[iconfidence.Count];
+                        for (int i = 0; i < iconfidence.Count; ++i)
+                        {
+                            IList iwordconf = iconfidence[i] as IList;
+                            if (iwordconf == null)
+                                continue;
+
+                            WordConfidence wc = new WordConfidence();
+                            wc.Word = (string)iwordconf[0];
+                            wc.Confidence = (double)iwordconf[1];
+                            confidence[i] = wc;
+                        }
+
+                        alternative.WordConfidence = confidence;
+                    }
+
+                    alternatives.Add(alternative);
+                }
+                result.alternatives = alternatives.ToArray();
+                results.Add(result);
             }
+
+            return new SpeechRecognitionEvent(results.ToArray());                        
         }
-		#endregion
+        #endregion
 
-		#region Asynchronous
-		#endregion
+        #region Asynchronous
+        #endregion
 
-		#region Get Custom Models
-		/// <summary>
-		/// This callback is used by the GetCustomizations() function.
-		/// </summary>
-		/// <param name="customizations">The customizations</param>
-		/// <param name="data">Optional custom data.</param>
-		public delegate void GetCustomizationsCallback(Customizations customizations, string data);
+        #region Do Custom Shit
+        #region Get Custom Models
+        /// <summary>
+        /// This callback is used by the GetCustomizations() function.
+        /// </summary>
+        /// <param name="customizations">The customizations</param>
+        /// <param name="data">Optional custom data.</param>
+        public delegate void GetCustomizationsCallback(Customizations customizations, string data);
 
 		/// <summary>
 		/// Lists information about all custom language models that are owned by the calling user. Use the language query parameter to see all custom models for the specified language; omit the parameter to see all custom models for all languages.
@@ -1859,6 +1908,7 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
                     m_Callback(SERVICE_ID, models != null);
             }
         };
+        #endregion
         #endregion
     }
 }

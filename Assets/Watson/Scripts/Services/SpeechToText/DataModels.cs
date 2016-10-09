@@ -171,7 +171,9 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
 		/// </summary>
 		public SpeechRecognitionAlternative[] alternatives { get; set; }
 		/// <summary>
-		/// Dictionary (or associative array) whose keys are the strings specified for keywords if both that parameter and keywords_threshold are specified. A keyword for which no matches are found is omitted from the array.
+		/// Dictionary (or associative array) whose keys are the strings specified for 
+        /// 
+        /// s if both that parameter and keywords_threshold are specified. A keyword for which no matches are found is omitted from the array.
 		/// </summary>
 		public KeywordResults keywords_result { get; set; }
 		/// <summary>

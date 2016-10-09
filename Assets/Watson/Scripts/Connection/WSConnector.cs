@@ -264,8 +264,11 @@ namespace IBM.Watson.DeveloperCloud.Connection
                                 msg is TextMessage ? "TextMessage" : "BinaryMessage", 
                                 msg is TextMessage ? ((TextMessage)msg).Text : ((BinaryMessage)msg).Data.Length.ToString() + " bytes" );
 #endif 
-                            if (OnMessage != null)
+                            if (OnMessage != null) {
                                 OnMessage(msg);
+                                //UnityEngine.Debug.Log("MESSAGING");
+                            }
+
                         }
                     }
                 }
@@ -344,6 +347,7 @@ namespace IBM.Watson.DeveloperCloud.Connection
             lock (m_ReceiveQueue)
                 m_ReceiveQueue.Enqueue(msg);
             m_ReceiveEvent.Set();
+            //UnityEngine.Debug.Log("ONWSMESSAGE");
         }
 
         private void OnWSError(object sender, ErrorEventArgs e)

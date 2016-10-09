@@ -65,7 +65,8 @@ namespace IBM.Watson.DeveloperCloud.Services.AlchemyAPI.v1
         public string image { get; set; }
 
         /// <summary>
-        /// Gets or sets the image keywords.
+        /// Gets or sets the image 
+        /// s.
         /// </summary>
         /// <value>The image keywords.</value>
         public ImageKeyword[] imageKeywords { get; set; }
