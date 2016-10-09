@@ -1,0 +1,64 @@
+{
+    "m_ClassifierDirectory": "Watson/Scripts/Editor/Classifiers/",
+    "m_TimeOut": 30.0,
+    "m_MaxRestConnections": 5,
+    "m_Credentials": [
+        {
+            "m_ServiceID": "RetrieveAndRankV1",
+            "m_URL": "https://gateway.watsonplatform.net/retrieve-and-rank/api",
+            "m_User": "d5c5f671-4c1f-4300-bd86-6c4e65a962f4",
+            "m_Password": "m7dQ5s4FkTVG",
+            "m_Apikey": null,
+            "m_Note": null
+        },
+        {
+            "m_ServiceID": "ToneAnalyzerV3",
+            "m_URL": "https://gateway.watsonplatform.net/tone-analyzer/api",
+            "m_User": "ab988e8e-02d3-4c39-a089-12247a7d13db",
+            "m_Password": "K7NSpDmxkNkb",
+            "m_Apikey": null,
+            "m_Note": null
+        },
+        {
+            "m_ServiceID": "TextToSpeechV1",
+            "m_URL": "https://stream.watsonplatform.net/text-to-speech/api",
+            "m_User": "7926cb95-3109-427e-a631-1ec548174503",
+            "m_Password": "r3uTEzZJ8PZw",
+            "m_Apikey": null,
+            "m_Note": null
+        },
+        {
+            "m_ServiceID": "SpeechToTextV1",
+            "m_URL": "https://stream.watsonplatform.net/speech-to-text/api",
+            "m_User": "24b41000-636a-4ddf-bc54-47675da11c16",
+            "m_Password": "WBDIn3sc40ci",
+            "m_Apikey": null,
+            "m_Note": null
+        },
+        {
+            "m_ServiceID": "AlchemyAPIV1",
+            "m_URL": "https://gateway-a.watsonplatform.net/calls",
+            "m_User": null,
+            "m_Password": null,
+            "m_Apikey": "e0c15a0a2b570e4918ec4b0dffbfa33775fa5975",
+            "m_Note": "It may take up to 5 minutes for this key to become active"
+        },
+        {
+            "m_ServiceID": "ConversationV1",
+            "m_URL": "https://gateway.watsonplatform.net/conversation/api",
+            "m_User": "a193512a-9e4d-40a2-9f5b-e58a0cd26985",
+            "m_Password": "3pD4mN3tHxmB",
+            "m_Apikey": null,
+            "m_Note": null
+        },
+        {
+            "m_ServiceID": "NaturalLanguageClassifierV1",
+            "m_URL": "https://gateway.watsonplatform.net/natural-language-classifier/api",
+            "m_User": "ec97aa1b-d77a-4c1a-bed4-cb20eab54a13",
+            "m_Password": "i21WGwHw7bZd",
+            "m_Apikey": null,
+            "m_Note": null
+        }
+    ],
+    "m_Variables": []
+}
