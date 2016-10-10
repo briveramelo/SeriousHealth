@@ -60,13 +60,14 @@ public class LevelManager : MonoBehaviour {
 
         //CHUNK TO REPEAT
         List<Round> rounds = new List<Round>() {
+            GenerateRound(new TableDimension(3,1), 4),
             GenerateRound(new TableDimension(3,3), 4),
+            GenerateRound(new TableDimension(5,2), 10),
             GenerateRound(new TableDimension(3,3), 4),
-            GenerateRound(new TableDimension(3,3), 4),
-            GenerateRound(new TableDimension(3,3), 4),
-            GenerateRound(new TableDimension(3,3), 4),
+            GenerateRound(new TableDimension(3,3), 40),
         };
         levels.Add(new Level(rounds));
+        if (true) { }
         //KEEP ON GOING TO ADD NEW LEVELS
     }
 
