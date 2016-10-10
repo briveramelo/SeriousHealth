@@ -726,15 +726,20 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
             return ParseRecognizeResponse(resp);
         }
 
-        List<string> keywordsToCheck = new List<string>() {
-            "this",
-            "that",
-            "his",
-            "her",
-            "they",
+        private List<string> keywordsToCheck = new List<string>() {
+            "sh",
+            "s",
+            "p",
+            "ee",
+            "CH",
+            "check",
+            "test",
+            "freedom"
         };
         public void UpdateKeywords(List<string> newKeywords) {
             keywordsToCheck = newKeywords;
+            //TO DO
+            //check that it's not mid processing before updating the keywords 
         }
         private SpeechRecognitionEvent ParseRecognizeResponse(IDictionary resp){
 
@@ -765,14 +770,13 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
                             continue;
                         }
                         foreach (var res in keyword_Results) {
-                            IDictionary elm = res as IDictionary;
+                            IDictionary kw_resultDic = res as IDictionary;
                             KeywordResult keyword_Result = new KeywordResult();
-                            keyword_Result.confidence = (double)elm["confidence"];
-                            keyword_Result.end_time = (double)elm["end_time"];
-                            keyword_Result.start_time = (double)elm["start_time"];
-                            keyword_Result.normalized_text = (string)elm["normalized_text"];
+                            keyword_Result.confidence = (double)kw_resultDic["confidence"];
+                            keyword_Result.end_time = (double)kw_resultDic["end_time"];
+                            keyword_Result.start_time = (double)kw_resultDic["start_time"];
+                            keyword_Result.normalized_text = (string)kw_resultDic["normalized_text"];
                             keywordResults.Add(keyword_Result);
-                            //UnityEngine.Debug.Log("Added new result");
                         }
                     }
                 }

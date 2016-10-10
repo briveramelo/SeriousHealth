@@ -198,7 +198,6 @@ public class SpeechEvaluator : Widget {
     private void OnRecognize(SpeechRecognitionEvent result) {
         //Debug.Log("Recognizing!");
         m_ResultOutput.SendData(new SpeechToTextData(result));
-        if (true) { }
 
         if (result != null && result.results.Length > 0) {
             if (m_Transcript != null)
@@ -219,6 +218,10 @@ public class SpeechEvaluator : Widget {
     #endregion
 
     #region Custom interfaces
-    
+    public void UpdateKeywords(List<string> newKeywords) {
+        m_SpeechToText.UpdateKeywords(newKeywords);
+        //TO DO
+        //check that it's not mid processing before updating the keywords
+    }
     #endregion
 }
