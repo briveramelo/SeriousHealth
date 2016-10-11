@@ -102,6 +102,8 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
 		#endregion
 
 		#region Public Properties
+
+        public Queue<AudioData> GetSpeechRecordings (){ return m_ListenRecordings; }
 		/// <summary>
 		/// True if StartListening() has been called.
 		/// </summary>
@@ -438,7 +440,7 @@ namespace IBM.Watson.DeveloperCloud.Services.SpeechToText.v1
                 Runnable.Stop(m_KeepAliveRoutine);
                 m_KeepAliveRoutine = 0;
             }
-
+            
             m_ListenRecordings.Clear();
             m_ListenCallback = null;
             m_RecordingHZ = -1;

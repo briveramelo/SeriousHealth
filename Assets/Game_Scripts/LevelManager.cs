@@ -6,7 +6,7 @@ public class Level {
     public Level(List<Round> i_Rounds) {
         rounds = i_Rounds;
     }
-    List<Round> rounds = new List<Round>();
+    public List<Round> rounds = new List<Round>();
 }
 
 public class Round {
@@ -14,8 +14,8 @@ public class Round {
         screenPhonemeObjects = i_ScreenPhonemeObjects;
         waves = i_Waves;
     }
-    List<PhonemeScreenObj> screenPhonemeObjects = new List<PhonemeScreenObj>();
-    List<Wave> waves = new List<Wave>();
+    public List<PhonemeScreenObj> screenPhonemeObjects = new List<PhonemeScreenObj>();
+    public List<Wave> waves = new List<Wave>();
 }
 
 
@@ -30,8 +30,8 @@ public class Wave {
         highlightedPhonemeObjects = i_HighlightedPhonemeObjects;
         myDirection = i_Direction;
     }
-    List<PhonemeScreenObj> highlightedPhonemeObjects = new List<PhonemeScreenObj>();
-    Direction myDirection = 0;
+    public List<PhonemeScreenObj> highlightedPhonemeObjects = new List<PhonemeScreenObj>();
+    public Direction myDirection = 0;
 }
 
 public class PhonemeScreenObj {

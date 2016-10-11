@@ -196,7 +196,7 @@ public class SpeechEvaluator : Widget {
 
 
     private void OnRecognize(SpeechRecognitionEvent result) {
-        //Debug.Log("Recognizing!");
+        
         m_ResultOutput.SendData(new SpeechToTextData(result));
 
         if (result != null && result.results.Length > 0) {
@@ -207,6 +207,14 @@ public class SpeechEvaluator : Widget {
                 if (res.keywords_result != null) {
                     if (res.keywords_result.keyword != null) {
                         foreach (var keyword in res.keywords_result.keyword) {
+                            //UnityEngine.Debug.Log("playing");
+                            //AudioData myData = new AudioData();
+                            //AudioClip myClip = m_SpeechToText.GetSpeechRecordings().First().Clip;
+                            //float[] myData = new float[myClip.samples * myClip.channels];
+                            //myClip.GetData(myData, 0);
+                            //myClip.SetData(, );
+                            //AudioSource.PlayClipAtPoint(myClip, UnityEngine.Camera.main.transform.position);
+
                             m_Transcript.text += string.Format("{0} ({1}, {2:0.00})\n",
                                 keyword.normalized_text, res.final ? "Final" : "Interim", keyword.confidence);
                         }
