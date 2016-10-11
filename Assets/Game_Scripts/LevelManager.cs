@@ -48,10 +48,18 @@ public class PhonemeScreenObj {
 
 public class LevelManager : MonoBehaviour {
 
-    List<Level> levels;        
+    List<Level> levels;
+    public static LevelManager Instance;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Awake () {
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else {
+            Destroy(gameObject);
+        }
         GenerateLevels();
 	}
 
